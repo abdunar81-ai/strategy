@@ -1,0 +1,8 @@
+{
+  "name": "Remix Стратегиялық Диагностика — Микро-лендинг",
+  "description": "15 минуттық тегін стратегиялық диагностикаға арналған телефонға арналған микро-лендинг және сүзгі-анкета",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
