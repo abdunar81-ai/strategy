@@ -31,7 +31,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
         <div className="relative flex flex-col items-center">
           <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-md border border-neutral-200/80 bg-neutral-100">
             <img
-              src="/assets/mentor_portrait.jpg"
+              src="https://imagedelivery.net/Sfn_8qOzRlEhFqpC-0doYw/2a959410-c5d9-43ac-7e53-73edb82f7d00/public"
               alt="Бизнес эксперт"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-top"
@@ -50,29 +50,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
         </div>
       </div>
 
-      {/* 4. Two Photo Proof Cards (Side-by-side) */}
-      <div className="grid grid-cols-2 gap-2.5 mb-5">
-        {/* Card 1: YouTube */}
-        <div className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-neutral-200/90 bg-neutral-900">
-          <img
-            src="https://imagedelivery.net/Sfn_8qOzRlEhFqpC-0doYw/2a959410-c5d9-43ac-7e53-73edb82f7d00/public"
-            alt="YouTube алтын батырмасы"
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-          <div className="absolute bottom-0 inset-x-0 p-2.5 text-white">
-            <p className="text-[10px] font-black uppercase tracking-wider text-amber-400 mb-0.5 leading-tight">
-              ИДЕЯЛАР АДАМДАРДЫ ӨЗГЕРТЕДІ.
-            </p>
-            <p className="text-[9.5px] text-neutral-200 leading-tight line-clamp-2">
-              Сапалы контент — бұл да бизнес жүйесі.
-            </p>
-          </div>
-        </div>
-
-        {/* Card 2: Lamborghini */}
-        <div className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-neutral-200/90 bg-neutral-900">
+      {/* 4. Photo Proof Card (Full width 16:9) */}
+      <div className="mb-5">
+        <div className="group relative aspect-video rounded-2xl overflow-hidden shadow-sm border border-neutral-200/90 bg-neutral-900">
           <img
             src="https://imagedelivery.net/Sfn_8qOzRlEhFqpC-0doYw/ad5e5956-76f2-4717-3c9c-af93b0b62f00/public"
             alt="Жүйе және автокөлік"
@@ -80,11 +60,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-          <div className="absolute bottom-0 inset-x-0 p-2.5 text-white">
-            <p className="text-[10px] font-black uppercase tracking-wider text-amber-400 mb-0.5 leading-tight">
+          <div className="absolute bottom-0 inset-x-0 p-3 sm:p-4 text-white">
+            <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-amber-400 mb-1 leading-tight">
               ЖҮЙЕ ЕРКІНДІК СЫЙЛАЙДЫ.
             </p>
-            <p className="text-[9.5px] text-neutral-200 leading-tight line-clamp-2">
+            <p className="text-[10.5px] sm:text-[11px] text-neutral-200 leading-tight">
               Дұрыс жүйе — үлкен мүмкіндіктерге апарады.
             </p>
           </div>
