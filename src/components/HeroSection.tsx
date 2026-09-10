@@ -34,7 +34,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
               src="https://imagedelivery.net/Sfn_8qOzRlEhFqpC-0doYw/2a959410-c5d9-43ac-7e53-73edb82f7d00/public"
               alt="Бизнес эксперт"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover object-bottom"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
           </div>

@@ -100,6 +100,27 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
     setIsSubmitting(true);
     const waUrl = buildWhatsAppUrl(whatsappPhone, form);
 
+    // Send data to webhook silently in the background
+    // To set this up, the user needs to provide their own webhook URL via environment variables.
+    const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
+    if (webhookUrl) {
+      try {
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...form,
+            timestamp: new Date().toISOString(),
+            source: 'micro_landing',
+          }),
+        }).catch(err => console.error('Webhook failed silently:', err));
+      } catch (err) {
+        console.error('Webhook initialization failed:', err);
+      }
+    }
+
     onSuccess(form, waUrl);
 
     try {
