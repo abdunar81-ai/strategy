@@ -24,9 +24,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
 
       {/* 3. Subhead & Mentor Portrait row */}
       <div className="grid grid-cols-[1.25fr_1fr] gap-2.5 items-center mb-4">
-        <p className="text-[12.5px] sm:text-[13.5px] leading-relaxed text-neutral-600 font-normal">
-          Бизнес өсу үшін - көп сату немесе үлкен жарнамаға байланысты емес. Бизнес моделің дұрыс болмаса, көп сатылым - шығынды еселей түседі. Бізге керегі бар обороттан таза пайданы жүйелі түрде шығару.
-        </p>
+        <div className="text-[12px] sm:text-[13px] text-neutral-700 font-normal space-y-2">
+          <p className="font-extrabold text-amber-800 text-[11px] uppercase tracking-wider">
+            №1 БИЗНЕС СТРАТЕГ
+          </p>
+          <p className="text-neutral-800 font-medium leading-snug">
+            Әркімге жем болмай.<br />
+            Бизнесіңнің жемісін өзің көретін жүйе жасаймын.
+          </p>
+          <p className="font-semibold text-neutral-900 leading-snug">
+            Бір консультация - ұзақ нәтиже!
+          </p>
+          <div className="pt-1.5 border-t border-amber-200/60 text-[11px] text-neutral-600 space-y-0.5">
+            <p className="font-medium">Мақсат: бақытты 10 000 бизнесмен!</p>
+            <p className="font-bold text-amber-700">Бүгінге: 358 / 10 000</p>
+          </div>
+        </div>
 
         <div className="relative flex flex-col items-center">
           <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-md border border-neutral-200/80 bg-neutral-100">
