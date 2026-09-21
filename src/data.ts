@@ -1,8 +1,9 @@
-import { Question } from './types';
+import { Question, Language } from './types';
+import { TRANSLATIONS } from './translations';
 
 export const DEFAULT_WHATSAPP_PHONE = '77757426111';
 
-export const QUIZ_QUESTIONS: Question[] = [
+export const QUIZ_QUESTIONS_KZ: Question[] = [
   {
     id: 'revenue',
     number: 1,
@@ -46,8 +47,53 @@ export const QUIZ_QUESTIONS: Question[] = [
   },
 ];
 
-export const WHATSAPP_DEFAULT_TEMPLATE =
-  'Сәлеметсіз бе! Мен сайттағы анкетаны толтырдым. Менің бизнесімдегі негізгі кедергіні анықтауға арналған 15 минуттық тегін стратегиялық диагностика уақытын бекітуге дайынмын';
+export const QUIZ_QUESTIONS_RU: Question[] = [
+  {
+    id: 'revenue',
+    number: 1,
+    question: 'Какой текущий месячный оборот вашего бизнеса?',
+    options: [
+      'До 5 миллионов тенге',
+      'От 5 до 20 миллионов тенге',
+      'От 20 до 100 миллионов тенге',
+      'Свыше 100 миллионов тенге',
+    ],
+  },
+  {
+    id: 'teamSize',
+    number: 2,
+    question: 'Сколько человек работает в вашей команде?',
+    options: [
+      '1 - 5 человек',
+      '5 - 15 человек',
+      'Более 15 человек',
+    ],
+  },
+  {
+    id: 'bottleneck',
+    number: 3,
+    question: 'Что сейчас является главным барьером для роста вашего бизнеса?',
+    options: [
+      'Сам не могу выйти из операционки, все завязано на мне',
+      'Оборот есть, но непонятно, сколько чистой прибыли остается',
+      'Маркетологи и команда не дают результата, время затягивается',
+      'Ресурсы распылены между несколькими направлениями',
+    ],
+  },
+  {
+    id: 'readiness',
+    number: 4,
+    question: 'Готовы ли вы инвестировать личные ресурсы и энергию в изменение процессов и внедрение стратегии?',
+    options: [
+      'Да, готов принимать твердые решения и меняться',
+      'Пока нужно изучить детальнее',
+    ],
+  },
+];
+
+export function getQuizQuestions(lang: Language): Question[] {
+  return lang === 'ru' ? QUIZ_QUESTIONS_RU : QUIZ_QUESTIONS_KZ;
+}
 
 export function buildWhatsAppUrl(
   phoneNumber: string,
@@ -58,19 +104,21 @@ export function buildWhatsAppUrl(
     teamSize: string;
     bottleneck: string;
     readiness: string;
-  }
+  },
+  lang: Language = 'kz'
 ): string {
-  // Clean phone number (remove +, -, spaces, () )
   const cleanPhone = phoneNumber.replace(/\D/g, '');
+  const t = TRANSLATIONS[lang].whatsapp;
 
-  let text = `${WHATSAPP_DEFAULT_TEMPLATE}\n\n`;
-  text += `📋 *Анкета жауаптары:*\n`;
-  if (answers.name) text += `👤 *Аты:* ${answers.name}\n`;
-  if (answers.phone) text += `📞 *Телефон:* ${answers.phone}\n`;
-  if (answers.revenue) text += `💰 *Айлық оборот:* ${answers.revenue}\n`;
-  if (answers.teamSize) text += `👥 *Команда:* ${answers.teamSize}\n`;
-  if (answers.bottleneck) text += `⚠️ *Негізгі кедергі:* ${answers.bottleneck}\n`;
-  if (answers.readiness) text += `🎯 *Дайындық:* ${answers.readiness}\n`;
+  let text = `${t.intro}\n\n`;
+  text += `${t.answersTitle}\n`;
+  if (answers.name) text += `${t.nameLabel} ${answers.name}\n`;
+  if (answers.phone) text += `${t.phoneLabel} ${answers.phone}\n`;
+  if (answers.revenue) text += `${t.revenueLabel} ${answers.revenue}\n`;
+  if (answers.teamSize) text += `${t.teamSizeLabel} ${answers.teamSize}\n`;
+  if (answers.bottleneck) text += `${t.bottleneckLabel} ${answers.bottleneck}\n`;
+  if (answers.readiness) text += `${t.readinessLabel} ${answers.readiness}\n`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
 }
+

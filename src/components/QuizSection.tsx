@@ -1,28 +1,33 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Send, User, Phone, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { QUIZ_QUESTIONS, buildWhatsAppUrl } from '../data';
-import { QuizState } from '../types';
+import { ArrowLeft, ArrowRight, Send, User, Phone, AlertCircle } from 'lucide-react';
+import { getQuizQuestions, buildWhatsAppUrl } from '../data';
+import { QuizState, Language } from '../types';
+import { TRANSLATIONS } from '../translations';
 
 interface QuizSectionProps {
+  lang: Language;
   onBack: () => void;
   whatsappPhone: string;
   onSuccess: (answers: QuizState, url: string) => void;
 }
 
 export const QuizSection: React.FC<QuizSectionProps> = ({
+  lang,
   onBack,
   whatsappPhone,
   onSuccess,
 }) => {
+  const t = TRANSLATIONS[lang].quiz;
+  const questions = getQuizQuestions(lang);
+
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [direction, setDirection] = useState<number>(1);
 
-  const [form, setForm] = useState<QuizState>({
-    revenue: '',
-    teamSize: '',
-    bottleneck: '',
-    readiness: '',
+  // Store option indices so language switching keeps selections in sync
+  const [selectedIndices, setSelectedIndices] = useState<Record<string, number>>({});
+
+  const [contactData, setContactData] = useState<{ name: string; phone: string }>({
     name: '',
     phone: '',
   });
@@ -32,21 +37,21 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Steps 0..3 are questions, Step 4 is contact form
-  const totalSteps = QUIZ_QUESTIONS.length + 1; // 5 steps
-  const isContactStep = currentStep === QUIZ_QUESTIONS.length;
-  const currentQuestion = !isContactStep ? QUIZ_QUESTIONS[currentStep] : null;
+  const totalSteps = questions.length + 1; // 5 steps
+  const isContactStep = currentStep === questions.length;
+  const currentQuestion = !isContactStep ? questions[currentStep] : null;
 
-  const handleSelectOption = (value: string) => {
+  const handleSelectOption = (index: number) => {
     if (!currentQuestion) return;
-    setForm((prev) => ({ ...prev, [currentQuestion.id]: value }));
+    setSelectedIndices((prev) => ({ ...prev, [currentQuestion.id]: index }));
     setStepError('');
   };
 
   const handleNext = () => {
     if (!isContactStep && currentQuestion) {
-      const selectedValue = form[currentQuestion.id as keyof QuizState];
-      if (!selectedValue) {
-        setStepError('Жалғастыру үшін бір жауапты таңдаңыз');
+      const selectedIndex = selectedIndices[currentQuestion.id];
+      if (selectedIndex === undefined) {
+        setStepError(t.selectOptionError);
         return;
       }
     }
@@ -75,7 +80,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
         val = '+7 ' + val;
       }
     }
-    setForm((prev) => ({ ...prev, phone: val }));
+    setContactData((prev) => ({ ...prev, phone: val }));
     if (contactErrors.phone) {
       setContactErrors((prev) => {
         const next = { ...prev };
@@ -89,19 +94,28 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
     e.preventDefault();
     const errors: Record<string, string> = {};
 
-    if (!form.name.trim()) errors.name = 'Атыңызды жазыңыз';
-    if (!form.phone.trim() || form.phone.length < 8) errors.phone = 'Телефон нөміріңізді толық жазыңыз';
+    if (!contactData.name.trim()) errors.name = t.nameError;
+    if (!contactData.phone.trim() || contactData.phone.length < 8) errors.phone = t.phoneError;
 
     if (Object.keys(errors).length > 0) {
       setContactErrors(errors);
       return;
     }
 
-    setIsSubmitting(true);
-    const waUrl = buildWhatsAppUrl(whatsappPhone, form);
+    // Build the resolved answers in the active language
+    const resolvedAnswers: QuizState = {
+      revenue: questions[0] && selectedIndices.revenue !== undefined ? questions[0].options[selectedIndices.revenue] : '',
+      teamSize: questions[1] && selectedIndices.teamSize !== undefined ? questions[1].options[selectedIndices.teamSize] : '',
+      bottleneck: questions[2] && selectedIndices.bottleneck !== undefined ? questions[2].options[selectedIndices.bottleneck] : '',
+      readiness: questions[3] && selectedIndices.readiness !== undefined ? questions[3].options[selectedIndices.readiness] : '',
+      name: contactData.name,
+      phone: contactData.phone,
+    };
 
-    // Send data to webhook silently in the background
-    // To set this up, the user needs to provide their own webhook URL via environment variables.
+    setIsSubmitting(true);
+    const waUrl = buildWhatsAppUrl(whatsappPhone, resolvedAnswers, lang);
+
+    // Send data to webhook silently in the background if configured
     const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
     if (webhookUrl) {
       try {
@@ -111,17 +125,18 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            ...form,
+            ...resolvedAnswers,
+            language: lang,
             timestamp: new Date().toISOString(),
             source: 'micro_landing',
           }),
-        }).catch(err => console.error('Webhook failed silently:', err));
+        }).catch((err) => console.error('Webhook failed silently:', err));
       } catch (err) {
         console.error('Webhook initialization failed:', err);
       }
     }
 
-    onSuccess(form, waUrl);
+    onSuccess(resolvedAnswers, waUrl);
 
     try {
       window.open(waUrl, '_blank', 'noopener,noreferrer');
@@ -135,31 +150,32 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
   return (
     <div className="flex flex-col min-h-full pb-10">
       {/* 1. Top navigation */}
-      <div className="pt-2 pb-3 flex items-center justify-between">
+      <div className="pt-2 pb-3 flex items-center justify-between gap-2">
         <button
           id="quiz-back-button"
           type="button"
           onClick={handlePrev}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition-colors py-1 cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition-colors py-1 cursor-pointer shrink-0"
         >
           <ArrowLeft className="w-4 h-4 text-neutral-800" />
-          <span>{currentStep === 0 ? 'Басты бетке оралу' : 'Артқа'}</span>
+          <span>{currentStep === 0 ? t.backHome : t.back}</span>
         </button>
 
-        <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2.5 py-0.5 rounded-full">
-          {currentStep < 4 ? `${currentStep + 1} / 4 сұрақ` : 'Соңғы қадам'}
+        {/* Step badge */}
+        <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+          {currentStep < 4
+            ? `${lang === 'ru' ? 'Вопрос ' : ''}${currentStep + 1} ${t.questionStepLabel}`
+            : t.finalStepLabel}
         </span>
       </div>
 
       {/* 2. Header Title & Progress */}
       <div className="mb-4">
         <h2 className="text-[20px] sm:text-[22px] font-extrabold uppercase tracking-tight text-neutral-950 leading-tight mb-1">
-          КВАЛИФИКАЦИЯЛЫҚ СҮЗГІ-АНКЕТА
+          {t.title}
         </h2>
         <p className="text-[12.5px] text-neutral-600 font-medium leading-relaxed">
-          {isContactStep
-            ? 'Диагностикаға жазылу үшін байланыс нөміріңізді қалдырыңыз:'
-            : 'Сізге нақты көмектесе алуымыз үшін бірнеше сұраққа жауап беріңіз.'}
+          {isContactStep ? t.subheadContact : t.subheadSteps}
         </p>
 
         {/* Progress Bar */}
@@ -191,7 +207,8 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                     {currentQuestion.number}
                   </span>
                   <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
-                    Сұрақ #{currentQuestion.number}
+                    {t.questionBadge}
+                    {currentQuestion.number}
                   </span>
                 </div>
 
@@ -200,13 +217,13 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                 </h3>
 
                 <div className="space-y-2.5">
-                  {currentQuestion.options.map((opt) => {
-                    const isChecked = form[currentQuestion.id as keyof QuizState] === opt;
+                  {currentQuestion.options.map((opt, optIndex) => {
+                    const isChecked = selectedIndices[currentQuestion.id] === optIndex;
                     return (
                       <button
-                        key={opt}
+                        key={optIndex}
                         type="button"
-                        onClick={() => handleSelectOption(opt)}
+                        onClick={() => handleSelectOption(optIndex)}
                         className={`w-full text-left flex items-start gap-3 p-3 rounded-xl text-[13px] cursor-pointer transition-all border ${
                           isChecked
                             ? 'bg-amber-50/90 border-amber-500 font-semibold text-neutral-950 shadow-xs ring-1 ring-amber-400/40'
@@ -244,7 +261,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                 onClick={handleNext}
                 className="w-full bg-[#1A2634] hover:bg-[#111A24] active:scale-[0.98] text-white font-extrabold text-[13px] tracking-wide py-3.5 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>КЕЛЕСІ</span>
+                <span>{t.nextButton}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
@@ -266,17 +283,17 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                       ✓
                     </span>
                     <h3 className="text-[14.5px] font-extrabold text-neutral-900 leading-snug">
-                      Байланыс деректеріңіз:
+                      {t.contactHeader}
                     </h3>
                   </div>
 
                   <p className="text-[12px] text-neutral-500">
-                    Анкета бойынша стратегиялық қорытындыны WhatsApp арқылы жібереміз.
+                    {t.contactExplanation}
                   </p>
 
                   <div>
                     <label className="block text-[11.5px] font-bold text-neutral-700 mb-1">
-                      Атыңыз:
+                      {t.nameLabel}
                     </label>
                     <div
                       className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border bg-neutral-50/70 focus-within:bg-white focus-within:border-neutral-900 transition-all ${
@@ -287,9 +304,9 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                       <input
                         id="contact-name-input"
                         type="text"
-                        value={form.name}
+                        value={contactData.name}
                         onChange={(e) => {
-                          setForm((p) => ({ ...p, name: e.target.value }));
+                          setContactData((p) => ({ ...p, name: e.target.value }));
                           if (contactErrors.name) {
                             setContactErrors((p) => {
                               const next = { ...p };
@@ -298,7 +315,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                             });
                           }
                         }}
-                        placeholder="Атыңызды жазыңыз"
+                        placeholder={t.namePlaceholder}
                         className="w-full bg-transparent text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:outline-hidden"
                       />
                     </div>
@@ -312,7 +329,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
 
                   <div>
                     <label className="block text-[11.5px] font-bold text-neutral-700 mb-1">
-                      Телефон нөміріңіз (WhatsApp):
+                      {t.phoneLabel}
                     </label>
                     <div
                       className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border bg-neutral-50/70 focus-within:bg-white focus-within:border-neutral-900 transition-all ${
@@ -323,9 +340,9 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                       <input
                         id="contact-phone-input"
                         type="tel"
-                        value={form.phone}
+                        value={contactData.phone}
                         onChange={handlePhoneChange}
-                        placeholder="+7 (___) ___-__-__"
+                        placeholder={t.phonePlaceholder}
                         className="w-full bg-transparent text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:outline-hidden"
                       />
                     </div>
@@ -346,7 +363,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                   className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 active:scale-[0.98] text-neutral-950 font-black uppercase text-[13px] tracking-wider py-3.5 px-4 rounded-2xl shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 border border-amber-300 cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
-                  <span>ЖІБЕРУ</span>
+                  <span>{t.submitButton}</span>
                 </button>
               </form>
             </motion.div>
@@ -356,3 +373,4 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
     </div>
   );
 };
+

@@ -1,3 +1,5 @@
+export type Language = 'kz' | 'ru';
+
 export interface QuizState {
   revenue: string;
   teamSize: string;
@@ -18,3 +20,4 @@ export interface Question {
   question: string;
   options: string[];
 }
+

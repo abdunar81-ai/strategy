@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Copy, Check, MessageSquare, ExternalLink, X } from 'lucide-react';
-import { QuizState } from '../types';
+import { QuizState, Language } from '../types';
+import { TRANSLATIONS } from '../translations';
 
 interface SuccessModalProps {
+  lang: Language;
   isOpen: boolean;
   onClose: () => void;
   whatsappUrl: string;
@@ -10,12 +12,14 @@ interface SuccessModalProps {
 }
 
 export const SuccessModal: React.FC<SuccessModalProps> = ({
+  lang,
   isOpen,
   onClose,
   whatsappUrl,
   answers,
 }) => {
   const [copied, setCopied] = useState(false);
+  const t = TRANSLATIONS[lang].successModal;
 
   if (!isOpen || !answers) return null;
 
@@ -42,10 +46,10 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             <CheckCircle2 className="w-7 h-7" />
           </div>
           <h3 className="text-[17px] font-extrabold text-neutral-900 leading-tight">
-            Анкета сәтті қабылданды!
+            {t.title}
           </h3>
           <p className="text-[12px] text-neutral-600 mt-1">
-            WhatsApp ашылмаса, төмендегі батырманы басыңыз.
+            {t.description}
           </p>
         </div>
 
@@ -59,7 +63,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             className="w-full bg-[#25D366] hover:bg-[#20BE5C] active:scale-[0.98] text-white font-extrabold text-[13px] py-3.5 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <MessageSquare className="w-4 h-4 fill-white" />
-            <span>WhatsApp-ты ашу</span>
+            <span>{t.openWhatsApp}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
 
@@ -71,12 +75,12 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700">Мәтін көшірілді</span>
+                <span className="text-emerald-700">{t.copied}</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Хабарлама мәтінін көшіру</span>
+                <span>{t.copyMessage}</span>
               </>
             )}
           </button>
@@ -88,10 +92,11 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             onClick={onClose}
             className="text-[11.5px] font-semibold text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer"
           >
-            Жабу және басты бетке оралу
+            {t.closeHome}
           </button>
         </div>
       </div>
     </div>
   );
 };
+

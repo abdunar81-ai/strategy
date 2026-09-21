@@ -1,45 +1,40 @@
 import React from 'react';
 import { Calendar, ChevronRight, TrendingUp, Youtube, Zap } from 'lucide-react';
+import { Language } from '../types';
+import { TRANSLATIONS } from '../translations';
 
 interface HeroSectionProps {
+  lang: Language;
   onOpenQuiz: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({
+  lang,
+  onOpenQuiz,
+}) => {
+  const t = TRANSLATIONS[lang].hero;
+
   return (
     <div className="flex flex-col min-h-full pb-8">
       {/* 1. Pill tag */}
       <div className="pt-2 pb-3">
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200/90 text-amber-800 text-xs font-semibold shadow-xs">
-          <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-          <span>15 минуттық тегін диагностика</span>
+          <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500 shrink-0" />
+          <span>{t.badge}</span>
         </div>
       </div>
 
       {/* 2. Main Offer Headline */}
-      <h1 className="text-[26px] sm:text-[30px] font-extrabold tracking-tight text-neutral-900 leading-[1.18] mb-3">
-        Оборот бар — <br />
-        қалтаңда ақша жоқ па?
-      </h1>
+      <h1
+        className="text-[26px] sm:text-[30px] font-extrabold tracking-tight text-neutral-900 leading-[1.18] mb-3"
+        dangerouslySetInnerHTML={{ __html: t.headline }}
+      />
 
       {/* 3. Subhead & Mentor Portrait row */}
       <div className="grid grid-cols-[1.25fr_1fr] gap-2.5 items-center mb-4">
-        <div className="text-[12px] sm:text-[13px] text-neutral-700 font-normal space-y-2">
-          <p className="font-extrabold text-amber-800 text-[11px] uppercase tracking-wider">
-            №1 БИЗНЕС СТРАТЕГ
-          </p>
-          <p className="text-neutral-800 font-medium leading-snug">
-            Әркімге жем болмай.<br />
-            Бизнесіңнің жемісін өзің көретін жүйе жасаймын.
-          </p>
-          <p className="font-semibold text-neutral-900 leading-snug">
-            Бір консультация - ұзақ нәтиже!
-          </p>
-          <div className="pt-1.5 border-t border-amber-200/60 text-[11px] text-neutral-600 space-y-0.5">
-            <p className="font-medium">Мақсат: бақытты 10 000 бизнесмен!</p>
-            <p className="font-bold text-amber-700">Бүгінге: 358 / 10 000</p>
-          </div>
-        </div>
+        <p className="text-[12.5px] sm:text-[13.5px] leading-relaxed text-neutral-600 font-normal">
+          {t.subhead}
+        </p>
 
         <div className="relative flex flex-col items-center">
           <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-md border border-neutral-200/80 bg-neutral-100">
@@ -54,10 +49,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
           {/* Handwritten aesthetic accent */}
           <div className="mt-1 text-center">
             <span className="font-handwriting text-[15px] text-neutral-800 leading-none font-bold tracking-wide block">
-              Көбірек таза пайда.
+              {t.handwriting1}
             </span>
             <span className="font-handwriting text-[14px] text-amber-700 leading-none font-bold block">
-              Нақты жүйе.
+              {t.handwriting2}
             </span>
           </div>
         </div>
@@ -75,10 +70,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
           <div className="absolute bottom-0 inset-x-0 p-3 sm:p-4 text-white">
             <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-amber-400 mb-1 leading-tight">
-              ЖҮЙЕ ЕРКІНДІК СЫЙЛАЙДЫ.
+              {t.card1Title}
             </p>
             <p className="text-[10.5px] sm:text-[11px] text-neutral-200 leading-tight">
-              Дұрыс жүйе — үлкен мүмкіндіктерге апарады.
+              {t.card1Desc}
             </p>
           </div>
         </div>
@@ -94,11 +89,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div className="text-[15px] font-extrabold text-neutral-900 tracking-tight leading-none">
-                $3 000 000
+                {t.stat1Number}
               </div>
             </div>
             <p className="text-[10px] text-neutral-600 leading-snug">
-              <strong className="text-neutral-800">жылдық оборот:</strong> Мен құрған бизнес-жүйенің нақты нәтижесі
+              <strong className="text-neutral-800">{t.stat1Label}</strong> {t.stat1Desc}
             </p>
           </div>
 
@@ -109,11 +104,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
                 <Youtube className="w-4 h-4" />
               </div>
               <div className="text-[15px] font-extrabold text-neutral-900 tracking-tight leading-none">
-                2 000 000
+                {t.stat2Number}
               </div>
             </div>
             <p className="text-[10px] text-neutral-600 leading-snug">
-              <strong className="text-neutral-800">YouTube жазылушы:</strong> контент алгоритмдерін жүйелі басқарудың дәлелі
+              <strong className="text-neutral-800">{t.stat2Label}</strong> {t.stat2Desc}
             </p>
           </div>
         </div>
@@ -131,7 +126,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
             <Calendar className="w-4 h-4" />
           </div>
           <span className="flex-1 text-center font-black uppercase text-[11.5px] sm:text-[12px] leading-tight">
-            15 МИНУТТЫҚ ТЕГІН СТРАТЕГИЯЛЫҚ ДИАГНОСТИКАҒА ЖАЗЫЛУ
+            {t.ctaButton}
           </span>
           <ChevronRight className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
         </button>
@@ -139,3 +134,4 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuiz }) => {
     </div>
   );
 };
+
